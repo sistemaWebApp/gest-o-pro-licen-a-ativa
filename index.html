@@ -33,7 +33,12 @@
 <script>
     // --- ⚠️ CONFIGURAÇÃO DO VENDEDOR ⚠️ ---
     const SEU_WHATSAPP = "5511985788027"; // Coloque seu número aqui (DDI + DDD + Numero)
-    const CHAVE_MESTRA = "primoalfredo"; 
+    const CHAVES_ATIVAS = [
+    "primoalfredo",
+    "felipe2026",
+    "cliente_vip",
+    "pizzaria01" 
+    "primoalfredo"];
     const PRAZO_DIAS = 365;
 
     // Configurar os links de suporte automaticamente
@@ -41,13 +46,17 @@
     document.getElementById('link-suporte-fixo').href = urlSuporte;
     document.getElementById('link-suporte-trava').href = urlSuporte;
 
-    // --- SEGURANÇA ---
     function validarAcesso() {
-        if(document.getElementById('chave-cliente').value === CHAVE_MESTRA) {
-            localStorage.setItem('felipe_ativa_v4', new Date().getTime());
-            location.reload();
-        } else { alert("Chave incorreta!"); }
+    const input = document.getElementById('chave-cliente').value.trim();
+    // Esta linha abaixo confere se o que o cliente digitou ESTÁ na sua lista
+    if(CHAVES_ATIVAS.includes(input)) {
+        localStorage.setItem('felipe_ativa_v4', new Date().getTime());
+        localStorage.setItem('felipe_chave_usada', input);
+        location.reload();
+    } else { 
+        alert("Chave inválida ou expirada!"); 
     }
+}
 
     function verificarLicenca() {
         const ativacao = localStorage.getItem('felipe_ativa_v4');
@@ -102,4 +111,5 @@
     function enviarWhatsApp() {        let totalCusto = usoDia.reduce((acc, item) => acc + item.custo, 0);        let msg = `*📊 RELATÓRIO: ${nomeEmpresa}*\nVenda: R$ ${faturamentoDia.toFixed(2)}\nLucro: R$ ${(faturamentoDia - totalCusto).toFixed(2)}`;        window.open(`https://api.whatsapp.com/send?phone=${SEU_WHATSAPP}&text=${encodeURIComponent(msg)}`);    }
 
     window.onload = () => {        verificarLicenca();        document.getElementById('frase-motivadora').innerText = `"${frases[Math.floor(Math.random() * frases.length)]}"`;        renderTudo(); atualizarRelogio();    };
+
 </script></body></html>
