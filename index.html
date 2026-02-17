@@ -28,35 +28,35 @@
 
 <div class="container" id="conteudo-para-pdf">    <header>        <div onclick="configurarNomeEmpresa()" style="cursor:pointer">            <h1 id="nome-empresa" style="color: var(--primario); margin: 0;">🚀 Minha Empresa</h1>            <small id="status-licenca" style="color:var(--sucesso)">Licença Ativa</small>        </div>        <div class="relogio-box">            <span id="data-topo" style="display:block; font-size:0.8rem; color:var(--cinza)"></span>            <span id="hora-topo" style="font-size:1.4rem; font-weight:900; color:var(--primario)"></span>        </div>    </header>    <div class="frase-box" id="frase-motivadora">"A gestão é a eficiência em subir a escada do sucesso."</div>        <div class="resumo-dia">        <div class="card-lucro" style="background: var(--info);">Venda Bruta<div id="venda-bruta">R$ 0,00</div></div>        <div class="card-lucro" style="background: var(--perigo);">Custo do Dia<div id="custo-total">R$ 0,00</div></div>        <div class="card-lucro" style="background: var(--sucesso);">Lucro Líquido<div id="lucro-real">R$ 0,00</div></div>    </div>
     <div class="painel" style="border: 2px solid var(--secundario); background: #fffcf2;">        <h3>🎯 Alvo de Vendas (Break-even Point)</h3>        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">            <div>                <label style="font-size: 0.8rem; color: var(--cinza);">Custos Fixos Mensais (R$)</label>                <input type="number" id="custo-fixo-input" placeholder="Ex: 2000" oninput="salvarCustoFixo()">            </div>            <div style="text-align: center;">                <div style="font-size: 0.8rem; color: var(--cinza);">Falta vender para pagar as contas:</div>                <div id="be-resultado" style="font-size: 1.5rem; font-weight: bold; color: var(--perigo);">R$ 0,00</div>            </div>        </div>    </div>
-    <div class="painel">        <h3>📊 Desempenho dos Últimos 7 Dias</h3>        <canvas id="graficoVendas"></canvas>    </div>    <div class="grid-forms">        <div class="painel">            <h3>⚙️ 1. Cadastro de Insumos</h3>            <input type="text" id="p-nome" placeholder="Nome do Item (Ex: Material, Farinha...)">            <div style="display: flex; gap: 5px;">                <input type="number" id="p-peso" placeholder="Qtd. Embalagem">                <select id="p-unidade" style="width: 100px;">                    <option value="kg">Kg</option><option value="g">g</option><option value="un">Un</option><option value="L">Litro</option><option value="ml">ml</option>                </select>            </div>            <input type="number" id="p-preco" placeholder="Preço Pago na Compra (R$)">            <button class="btn btn-lancar" onclick="cadastrarPreco()">Salvar no Estoque</button>            <div id="grid-precos-lista" class="grid-precos"></div>        </div>        <div class="painel">            <h3>🛒 2. Lançar Consumo/Venda</h3>            <select id="u-insumo"></select>            <div style="display: flex; gap: 5px; margin-bottom: 10px;">                <input type="number" id="u-qtd" placeholder="Qtd usada" onkeydown="if(event.key==='Enter') lancarUso()">                <select id="u-unidade" style="width: 110px;">                    <option value="g">g</option><option value="kg">Kg</option><option value="un">Un</option><option value="ml">ml</option><option value="L">Litro</option>                </select>            </div>            <button class="btn btn-lancar" style="background:#ea580c" onclick="lancarUso()">Adicionar Item (Enter ↵)</button>            <hr>            <h3>💰 Fechamento</h3>            <input type="number" id="v-total" placeholder="Venda Total do Período (R$)" onkeydown="if(event.key==='Enter') lancarVenda()">            <button class="btn btn-venda" onclick="lancarVenda()">📊 Calcular Lucro Atual</button>            <button class="btn btn-fechar" onclick="fecharDia()">✅ Fechar e Salvar Dia</button> <button class="btn btn-fechar" style="background:#ff4757; color:white; margin-left:10px" onclick="deslogar()">🚪 Sair / Trocar Chave</button>           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">                <button class="btn btn-pdf" onclick="gerarPDF()">📄 PDF</button>                <button class="btn btn-excel" onclick="exportarExcel()">📊 Excel</button>            </div>            <button class="btn btn-zap" onclick="enviarWhatsApp()">📱 Enviar via WhatsApp</button>        </div>    </div>    <div class="painel">        <h3>📝 Detalhes da Operação Atual</h3>        <table>            <thead><tr><th>Item</th><th>Qtd</th><th>Custo Proporcional</th><th>Ação</th></tr></thead>            <tbody id="corpo-dia"></tbody>        </table>    </div>    <div class="painel" style="background: #f8fafc;">        <h3>📜 Histórico Recente</h3>        <div id="lista-historico"></div>        <button onclick="limparHistorico()" style="margin-top:10px; color:var(--perigo); border:none; background:none; cursor:pointer; font-size:0.7rem;">Limpar Histórico Permanentemente</button>    </div></div>
+    <div class="painel">        <h3>📊 Desempenho dos Últimos 7 Dias</h3>        <canvas id="graficoVendas"></canvas>    </div>    <div class="grid-forms">        <div class="painel">            <h3>⚙️ 1. Cadastro de Insumos</h3>            <input type="text" id="p-nome" placeholder="Nome do Item (Ex: Material, Farinha...)">            <div style="display: flex; gap: 5px;">                <input type="number" id="p-peso" placeholder="Qtd. Embalagem">                <select id="p-unidade" style="width: 100px;">                    <option value="kg">Kg</option><option value="g">g</option><option value="un">Un</option><option value="L">Litro</option><option value="ml">ml</option>                </select>            </div>            <input type="number" id="p-preco" placeholder="Preço Pago na Compra (R$)">            <button class="btn btn-lancar" onclick="cadastrarPreco()">Salvar no Estoque</button>            <div id="grid-precos-lista" class="grid-precos"></div>        </div>        <div class="painel">            <h3>🛒 2. Lançar Consumo/Venda</h3>            <select id="u-insumo"></select>            <div style="display: flex; gap: 5px; margin-bottom: 10px;">                <input type="number" id="u-qtd" placeholder="Qtd usada" onkeydown="if(event.key==='Enter') lancarUso()">                <select id="u-unidade" style="width: 110px;">                    <option value="g">g</option><option value="kg">Kg</option><option value="un">Un</option><option value="ml">ml</option><option value="L">Litro</option>                </select>            </div>            <button class="btn btn-lancar" style="background:#ea580c" onclick="lancarUso()">Adicionar Item (Enter ↵)</button>            <hr>            <h3>💰 Fechamento</h3>            <input type="number" id="v-total" placeholder="Venda Total do Período (R$)" onkeydown="if(event.key==='Enter') lancarVenda()">            <button class="btn btn-venda" onclick="lancarVenda()">📊 Calcular Lucro Atual</button>            <button class="btn btn-fechar" onclick="fecharDia()">✅ Fechar e Salvar Dia</button> 
+            <button class="btn btn-fechar" style="background:#ff4757; color:white; margin-top:10px" onclick="deslogar()">🚪 Sair / Trocar Chave</button>           
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">                <button class="btn btn-pdf" onclick="gerarPDF()">📄 PDF</button>                <button class="btn btn-excel" onclick="exportarExcel()">📊 Excel</button>            </div>            <button class="btn btn-zap" onclick="enviarWhatsApp()">📱 Enviar via WhatsApp</button>        </div>    </div>    <div class="painel">        <h3>📝 Detalhes da Operação Atual</h3>        <table>            <thead><tr><th>Item</th><th>Qtd</th><th>Custo Proporcional</th><th>Ação</th></tr></thead>            <tbody id="corpo-dia"></tbody>        </table>    </div>    <div class="painel" style="background: #f8fafc;">        <h3>📜 Histórico Recente</h3>        <div id="lista-historico"></div>        <button onclick="limparHistorico()" style="margin-top:10px; color:var(--perigo); border:none; background:none; cursor:pointer; font-size:0.7rem;">Limpar Histórico Permanentemente</button>    </div></div>
 
 <script>
     // --- ⚠️ CONFIGURAÇÃO DO VENDEDOR ⚠️ ---
-    const SEU_WHATSAPP = "5511985788027"; // Coloque seu número aqui (DDI + DDD + Numero)
+    const SEU_WHATSAPP = "5511985788027"; 
     const CHAVES_ATIVAS = [
-    "primoalfredo",
-    "felipe2026",
-    "cliente_vip",
-    "pizzaria01" 
-    "primoalfredo"];
+        "primoalfredo",
+        "felipe2026",
+        "cliente_vip",
+        "pizzaria01"
+    ];
     const PRAZO_DIAS = 365;
 
-    // Configurar os links de suporte automaticamente
     const urlSuporte = `https://api.whatsapp.com/send?phone=${SEU_WHATSAPP}&text=Olá! Preciso de suporte com o sistema Gestão Pro.`;
     document.getElementById('link-suporte-fixo').href = urlSuporte;
     document.getElementById('link-suporte-trava').href = urlSuporte;
 
     function validarAcesso() {
-    const input = document.getElementById('chave-cliente').value.trim();
-    // Esta linha abaixo confere se o que o cliente digitou ESTÁ na sua lista
-    if(CHAVES_ATIVAS.includes(input)) {
-        localStorage.setItem('felipe_ativa_v4', new Date().getTime());
-        localStorage.setItem('felipe_chave_usada', input);
-        location.reload();
-    } else { 
-        alert("Chave inválida ou expirada!"); 
+        const input = document.getElementById('chave-cliente').value.trim();
+        if(CHAVES_ATIVAS.includes(input)) {
+            localStorage.setItem('felipe_ativa_v4', new Date().getTime());
+            localStorage.setItem('felipe_chave_usada', input);
+            location.reload();
+        } else { 
+            alert("Chave inválida ou expirada!"); 
+        }
     }
-}
 
     function verificarLicenca() {
         const ativacao = localStorage.getItem('felipe_ativa_v4');
@@ -80,7 +80,6 @@
         if(confirm("ATENÇÃO: Isso apagará todos os dados salvos para entregar ao cliente. Continuar?")) { localStorage.clear(); location.reload(); }
     }
 
-    // --- RESTO DO SISTEMA ---
     let precosDB = JSON.parse(localStorage.getItem('felipe_precos_v4')) || {};    let usoDia = JSON.parse(localStorage.getItem('felipe_uso_dia_v4')) || [];    let faturamentoDia = parseFloat(localStorage.getItem('felipe_faturamento_dia_v4')) || 0;    let historico = JSON.parse(localStorage.getItem('felipe_historico_v4')) || [];    let nomeEmpresa = localStorage.getItem('felipe_nome_empresa_v4') || "🚀 Gestão Pro";    let custoFixoMensal = parseFloat(localStorage.getItem('felipe_custo_fixo')) || 0;    let meuGrafico = null;
     const frases = ["O sucesso é a soma de pequenos esforços repetidos dia após dia.","Não se gerencia o que não se mede.","O lucro é o resultado de uma boa gestão."];
 
@@ -124,10 +123,8 @@
             location.reload();
         }
     }
-
 </script>
 </body>
 </html>
-   
 
 
