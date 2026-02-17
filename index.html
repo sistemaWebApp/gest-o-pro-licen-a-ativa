@@ -110,20 +110,24 @@
     function gerarPDF() { html2pdf().from(document.getElementById('conteudo-para-pdf')).save(`Relatorio_${nomeEmpresa}.pdf`); }
     function enviarWhatsApp() {        let totalCusto = usoDia.reduce((acc, item) => acc + item.custo, 0);        let msg = `*📊 RELATÓRIO: ${nomeEmpresa}*\nVenda: R$ ${faturamentoDia.toFixed(2)}\nLucro: R$ ${(faturamentoDia - totalCusto).toFixed(2)}`;        window.open(`https://api.whatsapp.com/send?phone=${SEU_WHATSAPP}&text=${encodeURIComponent(msg)}`);    }
 
-    window.onload = () => {        verificarLicenca();        document.getElementById('frase-motivadora').innerText = `"${frases[Math.floor(Math.random() * frases.length)]}"`;        renderTudo(); atualizarRelogio();    };
-function deslogar() {
+    window.onload = () => { 
+        verificarLicenca(); 
+        document.getElementById('frase-motivadora').innerText = `"${frases[Math.floor(Math.random() * frases.length)]}"`;
+        renderTudo();
+        atualizarRelogio();
+    };
 
-    if(confirm("Deseja realmente sair e bloquear o sistema?")) {
-
-        localStorage.removeItem('felipe_ativa_v4');
-
-        localStorage.removeItem('felipe_chave_usada');
-
-        location.reload();
-
+    function deslogar() {
+        if(confirm("Deseja realmente sair e bloquear o sistema?")) {
+            localStorage.removeItem('felipe_ativa_v4');
+            localStorage.removeItem('felipe_chave_usada');
+            location.reload();
+        }
     }
 
-} 
-</script></body></html>
+</script>
+</body>
+</html>
    
+
 
