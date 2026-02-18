@@ -29,16 +29,16 @@
 
     <div id="app-content" class="hidden p-4">
         <header class="flex justify-between items-center mb-8 bg-gray-800 p-4 rounded-lg">
-            <h1 class="text-xl font-bold">GestorPro - Painel</h1>
-            <button onclick="logout()" class="text-red-400 text-sm">Sair do Sistema</button>
+            <h1 class="text-xl font-bold text-blue-400">GestorPro - Painel</h1>
+            <button onclick="logout()" class="text-red-400 text-sm hover:underline">Sair do Sistema</button>
         </header>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                <h3 class="text-gray-400 mb-2">Seu faturamento hoje</h3>
-                <p class="text-3xl font-bold">R$ 0,00</p>
+                <h3 class="text-gray-400 mb-2 font-semibold">Seu faturamento hoje</h3>
+                <p class="text-3xl font-bold text-green-400">R$ 0,00</p>
             </div>
-            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -46,7 +46,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // 2. CONFIGURAÇÃO (Sua chave oficial)
+        // 2. CONFIGURAÇÃO OFICIAL
         const firebaseConfig = {
             apiKey: "AIzaSyCboQje-660NNTe90tmS-HxF7_7hmTAhg4",
             authDomain: "gestorpro-fda39.firebaseapp.com",
@@ -61,7 +61,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 4. VERIFICAÇÃO DE SESSÃO AO ABRIR (MANTÉM LOGADO)
+        // 4. VERIFICAÇÃO AUTOMÁTICA DE SESSÃO
         window.addEventListener('load', () => {
             const session = localStorage.getItem('session_user');
             if (session) {
@@ -70,14 +70,15 @@
             }
         });
 
-        // 5. FUNÇÃO DE LOGIN
+        // 5. LOGICA DE LOGIN (CORRIGIDA)
         window.handleLogin = async function() {
             const btn = document.getElementById('btn-login');
+            // .trim() remove espaços invisíveis que causam erros de login
             const keyInput = document.getElementById('license-key').value.trim().toUpperCase();
-            const docInput = document.getElementById('auth-doc').value.replace(/\D/g, '');
+            const docInput = document.getElementById('auth-doc').value.trim().replace(/\D/g, '');
 
             if (!docInput || !keyInput) {
-                alert("Preencha todos os campos!");
+                alert("Por favor, preencha o documento e a chave!");
                 return;
             }
 
@@ -85,7 +86,8 @@
             btn.disabled = true;
 
             try {
-                const docRef = doc(db, "licencas", docInput);
+                // USANDO "lincencas" CONFORME O SEU BANCO DE DADOS ATUAL
+                const docRef = doc(db, "lincencas", docInput);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -94,29 +96,29 @@
 
                     if (data.key === keyInput) {
                         if (data.validUntil < hoje) {
-                            alert("Sua licença expirou! Entre em contato para renovar.");
+                            alert("Esta licença expirou. Entre em contato com o suporte.");
                         } else {
-                            // SUCESSO
+                            // SALVA A SESSÃO PARA NÃO PRECISAR REPETIR O LOGIN
                             localStorage.setItem('session_user', docInput);
-                            alert("Acesso Autorizado!");
+                            alert("Acesso Autorizado! Bem-vindo.");
                             location.reload(); 
                         }
                     } else {
-                        alert("Chave incorreta para este CPF.");
+                        alert("Chave de acesso inválida para este documento.");
                     }
                 } else {
-                    alert("CPF não encontrado na base de dados.");
+                    alert("Documento não encontrado. Verifique se digitou corretamente.");
                 }
             } catch (error) {
-                console.error(error);
-                alert("Erro ao conectar. Verifique as 'Regras' do seu Firestore no console.");
+                console.error("Erro no Firebase:", error);
+                alert("Erro técnico ao conectar. Verifique as 'Regras' do Firestore.");
             } finally {
                 btn.innerText = "Ativar Sistema";
                 btn.disabled = false;
             }
         };
 
-        // 6. LOGOUT
+        // 6. FUNÇÃO DE SAÍDA
         window.logout = function() {
             localStorage.removeItem('session_user');
             location.reload();
