@@ -19,7 +19,6 @@
     </style>
 </head>
 <body class="text-slate-800">
-
     <div id="auth-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
             <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-8">
@@ -30,9 +29,7 @@
                 <input type="text" id="auth-doc" maxlength="14" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-lg font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CPF ou CNPJ">
                 <input type="password" id="license-key" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-xl font-bold uppercase outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CHAVE DE ACESSO">
             </div>
-            <button onclick="handleLogin()" id="btn-login-fire" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase text-xs tracking-widest">
-                Ativar Sistema
-            </button>
+            <button onclick="handleLogin()" id="btn-login-fire" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase text-xs tracking-widest">Ativar Sistema</button>
         </div>
     </div>
 
@@ -116,10 +113,21 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 space-y-8">
-                        <div class="glass-card p-8">
-                            <h4 class="font-black text-xs uppercase mb-6 text-slate-400 tracking-widest">Desempenho Semanal</h4>
-                            <div class="h-80"><canvas id="mainChart"></canvas></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="glass-card p-8">
+                                <h4 class="font-black text-xs uppercase mb-6 text-slate-400 tracking-widest">Desempenho Semanal (Lucro)</h4>
+                                <div class="h-64"><canvas id="mainChart"></canvas></div>
+                            </div>
+                            <div class="glass-card p-8">
+                                <h4 class="font-black text-xs uppercase mb-6 text-blue-600 tracking-widest">Fluxo de Caixa (Vendas vs Custos)</h4>
+                                <div class="h-64"><canvas id="cashFlowChart"></canvas></div>
+                            </div>
                         </div>
+                        <div class="glass-card p-8">
+                            <h4 class="font-black text-xs uppercase mb-6 text-slate-400 tracking-widest text-center">Saúde Financeira do Mês (Acumulado)</h4>
+                            <div class="h-64 flex justify-center"><canvas id="pieChart"></canvas></div>
+                        </div>
+                        
                         <div class="glass-card p-8">
                             <div class="flex justify-between items-center mb-6">
                                 <h4 class="font-black text-xs uppercase text-blue-600 tracking-widest">Histórico de Fechamentos Recentes</h4>
@@ -196,6 +204,8 @@
 
         const DB_KEY = "GP_V69_CORRECTED";
         let myChart = null;
+        let cashFlowChart = null;
+        let pieChart = null;
         let state = {
             license: "",
             storeDoc: "",
@@ -214,10 +224,7 @@
             try {
                 const dadosRef = doc(db, "dados_usuarios", state.storeDoc);
                 await setDoc(dadosRef, state);
-                console.log("Nuvem atualizada.");
-            } catch (e) {
-                console.error("Erro ao sincronizar:", e);
-            }
+            } catch (e) { console.error(e); }
         };
 
         window.addEventListener('load', () => {
@@ -236,55 +243,25 @@
             const btn = document.getElementById('btn-login-fire');
             const key = document.getElementById('license-key').value.trim().toUpperCase();
             const docInput = document.getElementById('auth-doc').value.trim().replace(/\D/g, '');
-
-            if (docInput.length < 11 || key.length < 3) {
-                alert("Preencha CPF/CNPJ e Chave!");
-                return;
-            }
-
+            if (docInput.length < 11 || key.length < 3) return;
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
-
             try {
                 const docRef = doc(db, "lincencas", docInput);
                 const docSnap = await getDoc(docRef);
-
                 if (docSnap.exists() && docSnap.data().key === key) {
                     const dadosRef = doc(db, "dados_usuarios", docInput);
                     const dadosSnap = await getDoc(dadosRef);
-
                     if (dadosSnap.exists()) {
-                        const confirmar = confirm("Sócio, encontramos um backup na nuvem. Deseja restaurar os dados?");
-                        if (confirmar) {
-                            state = dadosSnap.data();
-                            state.license = key;
-                            state.storeDoc = docInput;
-                        } else {
-                            state.license = key;
-                            state.storeDoc = docInput;
-                            state.startDate = state.startDate || new Date().getTime();
-                        }
-                    } else {
-                        state.license = key;
-                        state.storeDoc = docInput;
-                        state.startDate = state.startDate || new Date().getTime();
+                        if (confirm("Sócio, restaurar backup da nuvem?")) state = dadosSnap.data();
                     }
-
-                    saveData(); 
-                    unlockApp();
-                    initChart();
-                    render();
-                    alert("Acesso Autorizado!");
-                } else {
-                    alert("Dados de ativação incorretos.");
-                }
-            } catch (e) {
-                console.error("Erro no login:", e);
-                alert("Erro de conexão.");
-            } finally {
-                btn.innerText = "Ativar Sistema";
-                btn.disabled = false;
-            }
+                    state.license = key;
+                    state.storeDoc = docInput;
+                    state.startDate = state.startDate || new Date().getTime();
+                    saveData(); unlockApp(); initChart(); render();
+                } else { alert("Dados incorretos."); }
+            } catch (e) { console.error(e); }
+            finally { btn.innerText = "Ativar Sistema"; btn.disabled = false; }
         };
 
         window.unlockApp = function() {
@@ -314,21 +291,13 @@
             item.stock += baseQty;
             item.pricePerBase = price / baseQty;
             item.fullUnitPrice = originalPricePerUnit;
-            saveData(); 
-            render();
-            syncToCloud(); 
+            saveData(); render(); syncToCloud();
             document.getElementById('inv-name').value = ""; document.getElementById('inv-qty').value = ""; document.getElementById('inv-price').value = "";
-            showToast(`Cadastrado: ${formatBRL(originalPricePerUnit)} / ${unit}`);
+            showToast(`Cadastrado: ${formatBRL(originalPricePerUnit)}`);
         };
 
         window.removeInventoryItem = function(name) {
-            if (confirm(`Sócio, excluir "${name}"?`)) { 
-                delete state.inventory[name]; 
-                saveData(); 
-                render(); 
-                syncToCloud(); 
-                showToast("Removido!"); 
-            }
+            if (confirm(`Excluir "${name}"?`)) { delete state.inventory[name]; saveData(); render(); syncToCloud(); }
         };
 
         window.addUsage = function() {
@@ -341,9 +310,7 @@
             if (baseQty > item.stock) return alert("Estoque insuficiente!");
             item.stock -= baseQty;
             state.dailyUsage.push({ id: Date.now(), name, qty, unit, cost: baseQty * item.pricePerBase, baseQty });
-            saveData(); 
-            render(); 
-            showToast("Uso registrado!");
+            saveData(); render();
         };
 
         window.addSale = function() {
@@ -355,11 +322,8 @@
 
         window.saveConfig = function() {
             state.fixedCost = parseFloat(document.getElementById('cfg-fixed').value) || 0;
-            state.currentFixedLeft = state.fixedCost; 
-            saveData(); 
-            render(); 
-            syncToCloud(); 
-            showToast("Meta Definida!");
+            state.currentFixedLeft = state.fixedCost;
+            saveData(); render(); syncToCloud();
         };
 
         window.closeDay = function() {
@@ -367,27 +331,19 @@
             const tProfit = state.dailySales - tCosts;
             state.currentFixedLeft = Math.max(0, state.currentFixedLeft - tProfit);
             state.historyLog.unshift({ date: new Date().toLocaleDateString('pt-BR'), sales: state.dailySales, costs: tCosts, profit: tProfit });
-            if (state.historyLog.length > 30) state.historyLog.pop();
+            if (state.historyLog.length > 60) state.historyLog.pop();
             state.dailySales = 0; state.dailyUsage = [];
-            saveData(); 
-            render(); 
-            syncToCloud();
-            showToast("Dia Encerrado e Salvo na Nuvem!");
+            saveData(); render(); syncToCloud();
+            showToast("Dia Fechado!");
         };
 
         window.clearHistory = function() {
-            if (confirm("Limpar histórico?")) { 
-                state.historyLog = []; 
-                saveData(); 
-                render(); 
-                syncToCloud(); 
-            }
+            if (confirm("Limpar histórico?")) { state.historyLog = []; saveData(); render(); syncToCloud(); }
         };
 
         window.sendWhatsAppReport = function() {
             const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
-            const tProfit = state.dailySales - tCosts;
-            const msg = `*RESUMO DO DIA*%0A💰 Vendas: ${formatBRL(state.dailySales)}%0A📉 Custos: ${formatBRL(tCosts)}%0A✅ Lucro: ${formatBRL(tProfit)}`;
+            const msg = `*RESUMO DO DIA*%0A💰 Vendas: ${formatBRL(state.dailySales)}%0A📉 Custos: ${formatBRL(tCosts)}%0A✅ Lucro: ${formatBRL(state.dailySales - tCosts)}`;
             window.open(`https://wa.me/?text=${msg}`);
         };
 
@@ -420,9 +376,9 @@
         window.showToast = function(m) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('opacity-0'); setTimeout(() => t.classList.add('opacity-0'), 2000); };
         window.switchTab = function(t) { 
             document.getElementById('section-dash').classList.toggle('hidden', t !== 'dash'); 
-            document.getElementById('section-inventory').classList.toggle('hidden', t !== 'inventory'); 
-            document.getElementById('tab-dash').classList.toggle('tab-active', t === 'dash'); 
-            document.getElementById('tab-inventory').classList.toggle('tab-active', t === 'inventory'); 
+            document.getElementById('section-inventory').classList.toggle('hidden', t !== 'inventory');
+            document.getElementById('tab-dash').classList.toggle('tab-active', t === 'dash');
+            document.getElementById('tab-inventory').classList.toggle('tab-active', t === 'inventory');
         };
         window.handleLogout = function() { localStorage.removeItem(DB_KEY); location.reload(); };
 
@@ -430,20 +386,78 @@
             const ctx = document.getElementById('mainChart').getContext('2d');
             myChart = new Chart(ctx, {
                 type: 'line',
-                data: { labels: [], datasets: [{ label: 'Lucro (R$)', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4 }] },
+                data: { labels: [], datasets: [{ label: 'Lucro (R$)', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const ctxCash = document.getElementById('cashFlowChart').getContext('2d');
+            cashFlowChart = new Chart(ctxCash, {
+                type: 'line',
+                data: { 
+                    labels: [], 
+                    datasets: [
+                        { label: 'Vendas (Verde)', data: [], borderColor: '#10b981', backgroundColor: 'transparent', fill: false, tension: 0.4, borderWidth: 3 },
+                        { label: 'Custos (Vermelho)', data: [], borderColor: '#ef4444', backgroundColor: 'transparent', fill: false, tension: 0.4, borderWidth: 3 }
+                    ] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom' } } }
+            });
+
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Custos Acumulados', 'Lucro Acumulado'],
+                    datasets: [{ data: [0, 0], backgroundColor: ['#ef4444', '#10b981'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
             });
             updateChart();
         };
 
         window.updateChart = function() {
-            if (!myChart) return;
+            if (!myChart || !cashFlowChart || !pieChart) return;
             const lastData = [...state.historyLog].slice(0, 7).reverse();
+            
+            // Dados de Linhas
             if (lastData.length > 0) {
-                myChart.data.labels = lastData.map(d => d.date.split('/')[0] + '/' + d.date.split('/')[1]);
+                const labels = lastData.map(d => d.date.split('/')[0] + '/' + d.date.split('/')[1]);
+                myChart.data.labels = labels;
                 myChart.data.datasets[0].data = lastData.map(d => d.profit);
+                
+                cashFlowChart.data.labels = labels;
+                cashFlowChart.data.datasets[0].data = lastData.map(d => d.sales);
+                cashFlowChart.data.datasets[1].data = lastData.map(d => d.costs);
             }
+
+            // Lógica do Gráfico de Pizza (Acumulado do Mês Atual)
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1;
+            const currentYear = now.getFullYear();
+
+            // Soma histórico do mês
+            let monthlySales = 0;
+            let monthlyCosts = 0;
+
+            state.historyLog.forEach(h => {
+                const [day, month, year] = h.date.split('/').map(Number);
+                if (month === currentMonth && year === currentYear) {
+                    monthlySales += h.sales;
+                    monthlyCosts += h.costs;
+                }
+            });
+
+            // Soma o que está rodando hoje (ainda não fechado)
+            monthlySales += state.dailySales;
+            monthlyCosts += state.dailyUsage.reduce((a, b) => a + b.cost, 0);
+
+            const monthlyProfit = Math.max(0, monthlySales - monthlyCosts);
+
+            pieChart.data.datasets[0].data = [monthlyCosts, monthlyProfit];
+
             myChart.update();
+            cashFlowChart.update();
+            pieChart.update();
         };
     </script>
 </body>
