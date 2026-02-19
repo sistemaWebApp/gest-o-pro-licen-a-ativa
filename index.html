@@ -179,7 +179,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCboQje-660NNTe90tmS-HxF7_7hmTAhg4",
@@ -194,7 +194,6 @@
         const fbApp = initializeApp(firebaseConfig);
         const db = getFirestore(fbApp);
 
-        // ESTADO GLOBAL (SEU BANCO LOCAL GP_V69)
         const DB_KEY = "GP_V69_CORRECTED";
         let myChart = null;
         let state = {
@@ -210,7 +209,17 @@
             history: { labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'], values: [0, 0, 0, 0, 0, 0, 0] }
         };
 
-        // AO CARREGAR
+        window.syncToCloud = async function() {
+            if (!state.storeDoc || state.storeDoc === "") return;
+            try {
+                const dadosRef = doc(db, "dados_usuarios", state.storeDoc);
+                await setDoc(dadosRef, state);
+                console.log("Nuvem atualizada.");
+            } catch (e) {
+                console.error("Erro ao sincronizar:", e);
+            }
+        };
+
         window.addEventListener('load', () => {
             const saved = localStorage.getItem(DB_KEY);
             if (saved) {
@@ -223,7 +232,6 @@
             }
         });
 
-        // LOGIN FIREBASE INTEGRADO
         window.handleLogin = async function() {
             const btn = document.getElementById('btn-login-fire');
             const key = document.getElementById('license-key').value.trim().toUpperCase();
@@ -242,10 +250,27 @@
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists() && docSnap.data().key === key) {
-                    state.license = key;
-                    state.storeDoc = docInput;
-                    state.startDate = state.startDate || new Date().getTime();
-                    saveData();
+                    const dadosRef = doc(db, "dados_usuarios", docInput);
+                    const dadosSnap = await getDoc(dadosRef);
+
+                    if (dadosSnap.exists()) {
+                        const confirmar = confirm("Sócio, encontramos um backup na nuvem. Deseja restaurar os dados?");
+                        if (confirmar) {
+                            state = dadosSnap.data();
+                            state.license = key;
+                            state.storeDoc = docInput;
+                        } else {
+                            state.license = key;
+                            state.storeDoc = docInput;
+                            state.startDate = state.startDate || new Date().getTime();
+                        }
+                    } else {
+                        state.license = key;
+                        state.storeDoc = docInput;
+                        state.startDate = state.startDate || new Date().getTime();
+                    }
+
+                    saveData(); 
                     unlockApp();
                     initChart();
                     render();
@@ -254,14 +279,14 @@
                     alert("Dados de ativação incorretos.");
                 }
             } catch (e) {
-                alert("Erro de conexão com o banco.");
+                console.error("Erro no login:", e);
+                alert("Erro de conexão.");
             } finally {
                 btn.innerText = "Ativar Sistema";
                 btn.disabled = false;
             }
         };
 
-        // FUNÇÕES ORIGINAIS DO SEU SISTEMA
         window.unlockApp = function() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-content').classList.remove('hidden');
@@ -289,13 +314,21 @@
             item.stock += baseQty;
             item.pricePerBase = price / baseQty;
             item.fullUnitPrice = originalPricePerUnit;
-            saveData(); render();
+            saveData(); 
+            render();
+            syncToCloud(); 
             document.getElementById('inv-name').value = ""; document.getElementById('inv-qty').value = ""; document.getElementById('inv-price').value = "";
             showToast(`Cadastrado: ${formatBRL(originalPricePerUnit)} / ${unit}`);
         };
 
         window.removeInventoryItem = function(name) {
-            if (confirm(`Sócio, excluir "${name}"?`)) { delete state.inventory[name]; saveData(); render(); showToast("Removido!"); }
+            if (confirm(`Sócio, excluir "${name}"?`)) { 
+                delete state.inventory[name]; 
+                saveData(); 
+                render(); 
+                syncToCloud(); 
+                showToast("Removido!"); 
+            }
         };
 
         window.addUsage = function() {
@@ -308,7 +341,9 @@
             if (baseQty > item.stock) return alert("Estoque insuficiente!");
             item.stock -= baseQty;
             state.dailyUsage.push({ id: Date.now(), name, qty, unit, cost: baseQty * item.pricePerBase, baseQty });
-            saveData(); render(); showToast("Uso registrado!");
+            saveData(); 
+            render(); 
+            showToast("Uso registrado!");
         };
 
         window.addSale = function() {
@@ -320,7 +355,11 @@
 
         window.saveConfig = function() {
             state.fixedCost = parseFloat(document.getElementById('cfg-fixed').value) || 0;
-            state.currentFixedLeft = state.fixedCost; saveData(); render(); showToast("Meta Definida!");
+            state.currentFixedLeft = state.fixedCost; 
+            saveData(); 
+            render(); 
+            syncToCloud(); 
+            showToast("Meta Definida!");
         };
 
         window.closeDay = function() {
@@ -330,11 +369,19 @@
             state.historyLog.unshift({ date: new Date().toLocaleDateString('pt-BR'), sales: state.dailySales, costs: tCosts, profit: tProfit });
             if (state.historyLog.length > 30) state.historyLog.pop();
             state.dailySales = 0; state.dailyUsage = [];
-            saveData(); render(); showToast("Dia Encerrado!");
+            saveData(); 
+            render(); 
+            syncToCloud();
+            showToast("Dia Encerrado e Salvo na Nuvem!");
         };
 
         window.clearHistory = function() {
-            if (confirm("Limpar histórico?")) { state.historyLog = []; saveData(); render(); }
+            if (confirm("Limpar histórico?")) { 
+                state.historyLog = []; 
+                saveData(); 
+                render(); 
+                syncToCloud(); 
+            }
         };
 
         window.sendWhatsAppReport = function() {
