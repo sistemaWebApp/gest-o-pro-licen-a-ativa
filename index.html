@@ -1,201 +1,181 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Pro Enterprise - v9.0 FULL SYSTEM</title>
+    <title>Gestão Pro Enterprise - v6.9 Full</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.3s ease; }
-        .glass-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .tab-active { border-bottom: 4px solid #3b82f6; color: #3b82f6; font-weight: 900; }
-        .critical-stock { border-left: 8px solid #ef4444 !important; background: #fff1f2; }
-        .sidebar-item:hover { background: #f1f5f9; border-radius: 1rem; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .hidden { display: none; }
-        /* Scrollbar custom */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.5rem; transition: all 0.2s ease; position: relative; }
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 800; }
+        .btn-support { position: fixed; bottom: 24px; right: 24px; background-color: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); z-index: 1000; }
+        .critical-stock { border-left: 8px solid #ef4444 !important; background: #fef2f2; }
+        .delete-btn { position: absolute; top: 1.5rem; right: 1.5rem; color: #cbd5e1; transition: color 0.2s; }
+        .delete-btn:hover { color: #ef4444; }
     </style>
 </head>
-<body>
+<body class="text-slate-800">
 
     <div id="auth-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md p-10 rounded-[3rem] shadow-2xl text-center border border-slate-100">
-            <div class="w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl mx-auto flex items-center justify-center shadow-2xl mb-8 rotate-3">
-                <i class="fas fa-rocket text-white text-4xl"></i>
+        <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-8">
+                <i class="fas fa-rocket text-white text-3xl"></i>
             </div>
-            <h2 class="text-4xl font-black text-slate-900 tracking-tighter mb-2">Enterprise</h2>
-            <p class="text-slate-400 font-medium mb-10 text-sm">Controle de Produção e Insumos</p>
-            
-            <div class="space-y-4 mb-8 text-left">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-4 italic">Identificação</label>
-                    <input type="text" id="auth-doc" class="w-full p-5 bg-slate-50 rounded-2xl text-lg font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CPF ou CNPJ">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-4 italic">Chave de Segurança</label>
-                    <input type="password" id="license-key" class="w-full p-5 bg-slate-50 rounded-2xl text-lg font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="••••••••">
-                </div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Ativação Enterprise</h2>
+            <div class="space-y-4 my-8">
+                <input type="text" id="auth-doc" maxlength="14" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-lg font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CPF ou CNPJ">
+                <input type="password" id="license-key" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-xl font-bold uppercase outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CHAVE DE ACESSO">
             </div>
-            
-            <button onclick="handleLogin()" id="btn-login" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase text-xs tracking-[0.2em]">
-                Validar Licença
+            <button onclick="handleLogin()" id="btn-login-fire" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase text-xs tracking-widest">
+                Ativar Sistema
             </button>
         </div>
     </div>
 
-    <div id="app-content" class="hidden min-h-screen flex flex-col">
-        <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm h-24">
-            <div class="max-w-7xl mx-auto px-8 h-full flex justify-between items-center">
-                <div class="flex items-center gap-5">
-                    <div class="w-14 h-14 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-box-open text-white text-xl"></i></div>
-                    <div>
-                        <span class="font-black text-3xl tracking-tighter italic">GESTÃO<span class="text-blue-600 text-4xl">PRO</span></span>
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Sistema Operacional Online</span>
-                        </div>
+    <div id="app-content" class="hidden">
+        <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center h-24">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md"><i class="fas fa-rocket text-white text-xl"></i></div>
+                    <div><span class="font-black text-2xl italic block leading-none tracking-tighter">GESTÃO<span class="text-blue-600">PRO</span></span>
+                        <div class="flex items-center gap-2 mt-1"><span id="user-id-display" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: ----</span><span id="days-left" class="bg-blue-100 text-blue-600 text-[9px] px-2 py-0.5 rounded-full font-black uppercase">365 DIAS</span></div>
                     </div>
                 </div>
-
-                <div class="flex gap-10 items-center h-full">
-                    <div class="flex gap-8 text-[11px] font-black uppercase tracking-widest h-full items-center text-slate-400">
-                        <button onclick="switchTab('dash')" id="tab-dash" class="h-full px-2 tab-active transition-all">Dashboard</button>
-                        <button onclick="switchTab('inv')" id="tab-inv" class="h-full px-2 hover:text-blue-600 transition-all">Engenharia de Insumos</button>
-                        <button onclick="switchTab('sales')" id="tab-sales" class="h-full px-2 hover:text-blue-600 transition-all">Histórico</button>
+                <div class="flex gap-4 h-full items-center">
+                    <div class="flex gap-6 text-[11px] font-black uppercase text-slate-400 mr-4">
+                        <button onclick="switchTab('dash')" id="tab-dash" class="h-full px-2 tab-active">Dashboard</button>
+                        <button onclick="switchTab('inventory')" id="tab-inventory" class="h-full px-2">Engenharia/Estoque</button>
                     </div>
-                    <button onclick="location.reload()" class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all border border-slate-100">
-                        <i class="fas fa-power-off"></i>
+                    <button onclick="sendWhatsAppReport()" class="flex items-center gap-2 bg-green-50 text-green-600 px-4 py-2.5 rounded-full text-[10px] font-black uppercase border border-green-200 hover:bg-green-600 hover:text-white transition-all shadow-sm group">
+                        <i class="fab fa-whatsapp text-sm group-hover:scale-110"></i><span>Relatório</span>
                     </button>
+                    <button onclick="closeDay()" class="bg-red-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase hover:bg-red-700 transition-colors shadow-lg">Fechar Dia</button>
+                    <button onclick="handleLogout()" class="text-slate-300 hover:text-red-500 transition-colors ml-2"><i class="fas fa-power-off text-lg"></i></button>
                 </div>
             </div>
         </nav>
 
-        <main class="max-w-7xl mx-auto p-8 w-full flex-grow">
-            
-            <div id="page-dash" class="space-y-8 animate-in fade-in duration-500">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass-card p-8 border-l-8 border-blue-500 bg-gradient-to-r from-white to-blue-50/30">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Vendas Acumuladas</p>
-                        <h2 id="m-sales" class="text-4xl font-black text-slate-900">R$ 0,00</h2>
+        <main class="max-w-6xl mx-auto p-6 space-y-8 pb-32">
+            <div id="section-dash" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-card p-6 border-b-4 border-b-blue-500">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Vendas Hoje</p>
+                        <h3 id="m-sales" class="text-3xl font-black">R$ 0,00</h3>
                     </div>
-                    <div class="glass-card p-8 border-l-8 border-red-500 bg-gradient-to-r from-white to-red-50/30">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Custo Insumos</p>
-                        <h2 id="m-costs" class="text-4xl font-black text-red-600">R$ 0,00</h2>
+                    <div class="glass-card p-6 border-b-4 border-b-red-500">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Custo Materiais</p>
+                        <h3 id="m-costs" class="text-3xl font-black text-red-500">R$ 0,00</h3>
                     </div>
-                    <div class="glass-card p-8 border-l-8 border-green-500 bg-gradient-to-r from-white to-green-50/30">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Lucro Operacional</p>
-                        <h2 id="m-profit" class="text-4xl font-black text-green-600">R$ 0,00</h2>
+                    <div class="glass-card p-6 border-b-4 border-b-green-500">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Lucro Bruto Hoje</p>
+                        <h3 id="m-profit" class="text-3xl font-black text-green-600">R$ 0,00</h3>
                     </div>
-                    <div class="glass-card p-8 border-l-8 border-slate-900 bg-slate-900 text-white shadow-blue-900/20 shadow-2xl">
-                        <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Margem Real</p>
-                        <h2 id="m-margin" class="text-4xl font-black">0%</h2>
+                    <div class="glass-card p-6 border-b-4 border-b-amber-500">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Pendente Break-Even</p>
+                        <h3 id="m-be" class="text-xl font-black">R$ 0,00</h3><span id="m-be-percent" class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full mt-2 inline-block">Faltam 100%</span>
+                        <div class="w-full bg-slate-100 h-2 mt-4 rounded-full overflow-hidden">
+                            <div id="be-progress" class="bg-amber-500 h-full w-0 transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card shadow-sm overflow-hidden border border-slate-100">
+                    <div class="p-8 border-b flex flex-wrap gap-6 justify-between items-center bg-white">
+                        <h4 class="font-black text-xs uppercase italic tracking-tighter text-blue-600">Baixa de Insumos / Produção</h4>
+                        <div class="flex flex-wrap gap-3 items-center">
+                            <select id="sel-insumo" class="bg-slate-50 p-3.5 rounded-xl text-xs font-bold outline-none min-w-[180px] border border-slate-100"></select>
+                            <input type="number" id="usage-qty" class="bg-slate-50 text-xs p-3.5 w-20 rounded-xl outline-none font-black border border-slate-100" placeholder="Qtd.">
+                            <select id="usage-unit" class="bg-slate-50 p-3.5 rounded-xl text-[10px] font-black text-blue-600 uppercase border border-slate-100">
+                                <option value="g">G</option>
+                                <option value="kg">KG</option>
+                                <option value="ml">ML</option>
+                                <option value="L">L</option>
+                                <option value="un">UN</option>
+                            </select>
+                            <button onclick="addUsage()" class="bg-blue-600 text-white w-14 h-14 rounded-xl shadow-lg flex items-center justify-center hover:scale-105 transition-transform"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 text-slate-400 font-black text-[10px] uppercase border-b">
+                                <tr>
+                                    <th class="px-8 py-5 text-left">Insumo</th>
+                                    <th class="px-8 py-5 text-left">Quantidade</th>
+                                    <th class="px-8 py-5 text-right">Custo</th>
+                                    <th class="px-8 py-5 text-center">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usage-list" class="divide-y"></tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 space-y-6">
-                        <div class="glass-card p-8 bg-white border-2 border-blue-100">
-                            <div class="flex items-center gap-3 mb-8">
-                                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white"><i class="fas fa-hand-holding-usd"></i></div>
-                                <h4 class="font-black text-sm uppercase tracking-tighter text-slate-700">Registrar Venda Direta</h4>
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="glass-card p-8">
+                            <h4 class="font-black text-xs uppercase mb-6 text-slate-400 tracking-widest">Desempenho Semanal</h4>
+                            <div class="h-80"><canvas id="mainChart"></canvas></div>
+                        </div>
+                        <div class="glass-card p-8">
+                            <div class="flex justify-between items-center mb-6">
+                                <h4 class="font-black text-xs uppercase text-blue-600 tracking-widest">Histórico de Fechamentos Recentes</h4>
+                                <button onclick="clearHistory()" class="text-[9px] font-black uppercase bg-slate-100 hover:bg-red-50 hover:text-red-500 px-3 py-1.5 rounded-lg transition-all border border-slate-200">Limpar Tudo</button>
                             </div>
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Valor Bruto Recebido</label>
-                                    <div class="relative mt-2">
-                                        <span class="absolute left-5 top-1/2 -translate-y-1/2 font-black text-slate-300">R$</span>
-                                        <input type="number" id="sale-val" class="w-full p-5 pl-12 bg-slate-50 rounded-2xl text-2xl font-black outline-none border border-slate-100 focus:border-blue-500 transition-all" placeholder="0,00">
-                                    </div>
-                                </div>
-                                <button onclick="addSale()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-lg transition-all text-xs uppercase tracking-widest">
-                                    Confirmar Lançamento
-                                </button>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="text-[10px] uppercase text-slate-400 border-b">
+                                        <tr>
+                                            <th class="text-left py-4">Data</th>
+                                            <th class="text-right py-4">Vendas</th>
+                                            <th class="text-right py-4">Custos</th>
+                                            <th class="text-right py-4">Lucro</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="history-list" class="text-sm font-bold divide-y"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-
-                    <div class="lg:col-span-2">
-                        <div class="glass-card overflow-hidden border-2 border-slate-100 h-full">
-                            <div class="p-8 bg-slate-50/50 border-b border-slate-100 flex justify-between items-center">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white"><i class="fas fa-utensils"></i></div>
-                                    <h4 class="font-black text-sm uppercase tracking-tighter text-slate-700">Baixa de Materiais (Engenharia Reversa)</h4>
-                                </div>
-                            </div>
-                            <div class="p-8">
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 items-end">
-                                    <div class="md:col-span-2">
-                                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Selecione o Insumo</label>
-                                        <select id="sel-insumo" class="w-full mt-2 p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500"></select>
-                                    </div>
-                                    <div>
-                                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 italic">Qtd Utilizada</label>
-                                        <input type="number" id="usage-qty" class="w-full mt-2 p-4 bg-slate-50 border border-slate-100 rounded-xl font-black text-sm outline-none focus:ring-2 focus:ring-blue-500" placeholder="0">
-                                    </div>
-                                    <button onclick="addUsage()" class="w-full bg-slate-900 hover:bg-blue-600 text-white font-black p-4 rounded-xl transition-all shadow-md">
-                                        DAR BAIXA
-                                    </button>
-                                </div>
-                                <div class="overflow-x-auto rounded-xl border border-slate-100">
-                                    <table class="w-full text-sm">
-                                        <thead class="bg-slate-50 text-[10px] font-black uppercase text-slate-400 border-b">
-                                            <tr>
-                                                <th class="px-6 py-4 text-left italic">Componente</th>
-                                                <th class="px-6 py-4 text-center italic">Qtd Retirada</th>
-                                                <th class="px-6 py-4 text-right italic">Custo Calculado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="usage-list" class="divide-y divide-slate-50"></tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <div class="space-y-6">
+                        <div class="glass-card p-8 bg-slate-900 text-white border-none shadow-2xl relative overflow-hidden">
+                            <h4 class="font-black text-[10px] mb-6 opacity-50 uppercase">Registrar Venda</h4>
+                            <input type="number" id="sale-val" class="w-full bg-transparent border-b-2 border-slate-700 text-4xl font-black text-white outline-none" placeholder="0,00">
+                            <button onclick="addSale()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 mt-6 rounded-2xl font-black uppercase text-xs transition-all shadow-lg">Adicionar Valor</button>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h4 class="font-black text-[10px] text-slate-400 mb-4 uppercase">Meta Fixa Mensal</h4>
+                            <div class="flex gap-2"><input type="number" id="cfg-fixed" class="w-full bg-slate-50 p-4 rounded-xl text-sm font-bold outline-none border border-slate-100" placeholder="R$ 2500,00"><button onclick="saveConfig()" class="bg-slate-800 text-white px-6 rounded-xl font-black text-[10px] uppercase shadow-md">Definir</button></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="page-inv" class="hidden space-y-8 animate-in slide-in-from-bottom duration-500">
-                <div class="glass-card p-10 bg-white border-b-8 border-blue-600">
-                    <h4 class="font-black mb-10 uppercase text-xs text-blue-600 tracking-[0.3em] flex items-center gap-3">
-                        <span class="w-8 h-1 bg-blue-600 rounded-full"></span>
-                        Gestão de Matéria-Prima e Custos Unitários
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block italic">Nome do Item</label>
-                            <input type="text" id="inv-name" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Farinha de Trigo">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block italic">Quantidade Total</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="inv-qty" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-black outline-none focus:ring-2 focus:ring-blue-500" placeholder="0">
-                                <select id="inv-unit" class="p-4 bg-slate-100 rounded-xl font-black text-[10px] uppercase border-none">
-                                    <option value="kg">KG</option>
-                                    <option value="un">UN</option>
-                                    <option value="l">LITRO</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-400 uppercase ml-2 mb-2 block italic">Custo Total Pago (R$)</label>
-                            <input type="number" id="inv-price" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-black outline-none focus:ring-2 focus:ring-blue-500" placeholder="0,00">
-                        </div>
-                        <button onclick="saveInventory()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black p-4 rounded-xl shadow-xl transition-all uppercase text-[10px] tracking-widest">
-                            Cadastrar Insumo
-                        </button>
+            <div id="section-inventory" class="hidden space-y-8">
+                <div class="glass-card p-8 shadow-sm">
+                    <h4 class="font-black mb-8 uppercase text-xs text-blue-600 tracking-widest">Entrada de Insumo (Engenharia)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <input type="text" id="inv-name" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100" placeholder="Nome">
+                        <div class="flex gap-2"><input type="number" id="inv-qty" class="p-4 bg-slate-50 rounded-2xl w-full font-bold text-sm outline-none border border-slate-100" placeholder="Qtd"><select id="inv-unit" class="p-4 bg-slate-50 rounded-2xl text-[10px] font-black uppercase border border-slate-100">
+                                <option value="kg">KG</option>
+                                <option value="L">L</option>
+                                <option value="un">UN</option>
+                            </select></div>
+                        <input type="number" id="inv-price" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100" placeholder="Preço Pago">
+                        <button onclick="saveInventory()" class="w-full h-[58px] bg-blue-600 text-white font-black rounded-2xl text-[10px] uppercase hover:bg-blue-700 transition-colors shadow-lg">Cadastrar</button>
                     </div>
                 </div>
-
-                <div id="inventory-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="inventory-grid"></div>
             </div>
         </main>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] opacity-0 transition-all pointer-events-none">
+        <div class="bg-slate-900 text-white px-10 py-5 rounded-2xl text-xs font-black uppercase shadow-2xl border border-white/10" id="toast-msg"></div>
     </div>
 
     <script type="module">
@@ -203,30 +183,65 @@
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCboQje-66ONNTe9OtmS-HxF7_7hmTAhg4",
+            apiKey: "AIzaSyCboQje-660NNTe90tmS-HxF7_7hmTAhg4",
             authDomain: "gestorpro-fda39.firebaseapp.com",
             projectId: "gestorpro-fda39",
             storageBucket: "gestorpro-fda39.firebasestorage.app",
-            appId: "1:614355486570:web:ec1b6f76020cde55b68713"
+            messagingSenderId: "614355486570",
+            appId: "1:614355486570:web:ec1b6f76020cde55b68713",
+            measurementId: "G-2MYNYCG3DW"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const fbApp = initializeApp(firebaseConfig);
+        const db = getFirestore(fbApp);
 
-        let currentUser = "";
+        const DB_KEY = "GP_V69_CORRECTED";
+        let myChart = null;
         let state = {
+            license: "",
+            storeDoc: "",
+            startDate: null,
             inventory: {},
             dailyUsage: [],
-            dailySales: 0
+            dailySales: 0,
+            fixedCost: 0,
+            currentFixedLeft: 0,
+            historyLog: [],
+            history: { labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'], values: [0, 0, 0, 0, 0, 0, 0] }
         };
 
-        // --- SISTEMA DE LOGIN (SEU BANCO) ---
-        window.handleLogin = async function() {
-            const docInput = document.getElementById('auth-doc').value.trim();
-            const keyInput = document.getElementById('license-key').value.trim();
-            const btn = document.getElementById('btn-login');
+        window.syncToCloud = async function() {
+            if (!state.storeDoc || state.storeDoc === "") return;
+            try {
+                const dadosRef = doc(db, "dados_usuarios", state.storeDoc);
+                await setDoc(dadosRef, state);
+                console.log("Nuvem atualizada.");
+            } catch (e) {
+                console.error("Erro ao sincronizar:", e);
+            }
+        };
 
-            if (!docInput || !keyInput) return alert("Preencha as credenciais!");
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem(DB_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                if (state.license) {
+                    unlockApp();
+                    initChart();
+                    render();
+                }
+            }
+        });
+
+        window.handleLogin = async function() {
+            const btn = document.getElementById('btn-login-fire');
+            const key = document.getElementById('license-key').value.trim().toUpperCase();
+            const docInput = document.getElementById('auth-doc').value.trim().replace(/\D/g, '');
+
+            if (docInput.length < 11 || key.length < 3) {
+                alert("Preencha CPF/CNPJ e Chave!");
+                return;
+            }
 
             btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
@@ -235,123 +250,201 @@
                 const docRef = doc(db, "lincencas", docInput);
                 const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists() && docSnap.data().key === keyInput) {
-                    currentUser = docInput;
-                    document.getElementById('auth-screen').classList.add('hidden');
-                    document.getElementById('app-content').classList.remove('hidden');
-                    loadDatabase();
+                if (docSnap.exists() && docSnap.data().key === key) {
+                    const dadosRef = doc(db, "dados_usuarios", docInput);
+                    const dadosSnap = await getDoc(dadosRef);
+
+                    if (dadosSnap.exists()) {
+                        const confirmar = confirm("Sócio, encontramos um backup na nuvem. Deseja restaurar os dados?");
+                        if (confirmar) {
+                            state = dadosSnap.data();
+                            state.license = key;
+                            state.storeDoc = docInput;
+                        } else {
+                            state.license = key;
+                            state.storeDoc = docInput;
+                            state.startDate = state.startDate || new Date().getTime();
+                        }
+                    } else {
+                        state.license = key;
+                        state.storeDoc = docInput;
+                        state.startDate = state.startDate || new Date().getTime();
+                    }
+
+                    saveData(); 
+                    unlockApp();
+                    initChart();
+                    render();
+                    alert("Acesso Autorizado!");
                 } else {
-                    alert("Acesso Negado: CPF ou Chave Incorretos.");
+                    alert("Dados de ativação incorretos.");
                 }
             } catch (e) {
-                alert("Falha Crítica: Regras do Firestore bloqueadas ou Sem Internet.");
+                console.error("Erro no login:", e);
+                alert("Erro de conexão.");
             } finally {
-                btn.innerText = "Validar Licença";
+                btn.innerText = "Ativar Sistema";
                 btn.disabled = false;
             }
         };
 
-        // --- SINCRONIZAÇÃO NUVEM ---
-        async function loadDatabase() {
-            const snap = await getDoc(doc(db, "dados_usuarios", currentUser));
-            if (snap.exists()) {
-                state = snap.data();
-                render();
-            }
-        }
+        window.unlockApp = function() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('user-id-display').innerText = `ID: ${state.storeDoc.slice(-4)}`;
+            checkExpiration();
+        };
 
-        async function sync() {
-            await setDoc(doc(db, "dados_usuarios", currentUser), state);
-            render();
-        }
+        window.checkExpiration = function() {
+            const d = Math.floor((new Date().getTime() - state.startDate) / 86400000);
+            document.getElementById('days-left').innerText = `${365 - d} DIAS RESTANTES`;
+        };
 
-        // --- LÓGICA DE GESTÃO ---
+        window.saveData = function() { localStorage.setItem(DB_KEY, JSON.stringify(state)); };
+
         window.saveInventory = function() {
             const name = document.getElementById('inv-name').value.trim().toUpperCase();
             const qty = parseFloat(document.getElementById('inv-qty').value);
             const unit = document.getElementById('inv-unit').value;
             const price = parseFloat(document.getElementById('inv-price').value);
-
             if (!name || isNaN(qty) || isNaN(price)) return;
-
-            let baseQty = (unit === 'kg' || unit === 'l') ? qty * 1000 : qty;
-            let baseUnit = (unit === 'kg') ? 'g' : (unit === 'l') ? 'ml' : 'un';
-
-            if (!state.inventory[name]) state.inventory[name] = { stock: 0, pricePerBase: 0, unit: baseUnit };
-            
-            state.inventory[name].stock += baseQty;
-            state.inventory[name].pricePerBase = price / baseQty;
-
-            sync();
+            let baseQty = qty, baseUnit = unit, originalPricePerUnit = price / qty;
+            if (unit === 'kg' || unit === 'L') { baseQty = qty * 1000; baseUnit = (unit === 'kg' ? 'g' : 'ml'); }
+            if (!state.inventory[name]) state.inventory[name] = { stock: 0, pricePerBase: 0, unit: baseUnit, originalUnit: unit };
+            const item = state.inventory[name];
+            item.stock += baseQty;
+            item.pricePerBase = price / baseQty;
+            item.fullUnitPrice = originalPricePerUnit;
+            saveData(); 
+            render();
+            syncToCloud(); 
             document.getElementById('inv-name').value = ""; document.getElementById('inv-qty').value = ""; document.getElementById('inv-price').value = "";
+            showToast(`Cadastrado: ${formatBRL(originalPricePerUnit)} / ${unit}`);
+        };
+
+        window.removeInventoryItem = function(name) {
+            if (confirm(`Sócio, excluir "${name}"?`)) { 
+                delete state.inventory[name]; 
+                saveData(); 
+                render(); 
+                syncToCloud(); 
+                showToast("Removido!"); 
+            }
         };
 
         window.addUsage = function() {
             const name = document.getElementById('sel-insumo').value;
             const qty = parseFloat(document.getElementById('usage-qty').value);
+            const unit = document.getElementById('usage-unit').value;
             if (!name || isNaN(qty)) return;
-
+            let baseQty = (unit === 'kg' || unit === 'L') ? qty * 1000 : qty;
             const item = state.inventory[name];
-            if (qty > item.stock) return alert("Estoque Insuficiente!");
-
-            item.stock -= qty;
-            const cost = qty * item.pricePerBase;
-            state.dailyUsage.unshift({ name, qty, cost, date: new Date().toLocaleTimeString() });
-            sync();
+            if (baseQty > item.stock) return alert("Estoque insuficiente!");
+            item.stock -= baseQty;
+            state.dailyUsage.push({ id: Date.now(), name, qty, unit, cost: baseQty * item.pricePerBase, baseQty });
+            saveData(); 
+            render(); 
+            showToast("Uso registrado!");
         };
 
         window.addSale = function() {
             const v = parseFloat(document.getElementById('sale-val').value);
             if (isNaN(v)) return;
-            state.dailySales += v;
-            sync();
+            state.dailySales += v; saveData(); render();
             document.getElementById('sale-val').value = "";
         };
 
-        // --- RENDERIZAÇÃO DA INTERFACE ---
-        window.render = function() {
-            const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
-            const profit = state.dailySales - tCosts;
-            const margin = state.dailySales > 0 ? (profit / state.dailySales) * 100 : 0;
-
-            document.getElementById('m-sales').innerText = formatBRL(state.dailySales);
-            document.getElementById('m-costs').innerText = formatBRL(tCosts);
-            document.getElementById('m-profit').innerText = formatBRL(profit);
-            document.getElementById('m-margin').innerText = Math.round(margin) + "%";
-
-            const sel = document.getElementById('sel-insumo');
-            sel.innerHTML = '<option value="">Escolher Material...</option>';
-            Object.keys(state.inventory).forEach(n => {
-                sel.innerHTML += `<option value="${n}">${n} (${state.inventory[n].unit})</option>`;
-            });
-
-            document.getElementById('usage-list').innerHTML = state.dailyUsage.map(u => `
-                <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-black text-slate-700">${u.name}</td>
-                    <td class="px-6 py-4 text-center font-bold text-slate-500">${u.qty}${state.inventory[u.name]?.unit || ''}</td>
-                    <td class="px-6 py-4 text-right text-red-500 font-black">${formatBRL(u.cost)}</td>
-                </tr>
-            `).join('');
-
-            document.getElementById('inventory-grid').innerHTML = Object.entries(state.inventory).map(([n, d]) => `
-                <div class="glass-card p-8 ${d.stock < 1000 ? 'critical-stock' : 'border-t-4 border-blue-500'}">
-                    <div class="flex justify-between items-start mb-4">
-                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">${n}</p>
-                        ${d.stock < 1000 ? '<span class="text-[8px] bg-red-500 text-white px-2 py-1 rounded-full font-black animate-pulse uppercase">Reposição!</span>' : ''}
-                    </div>
-                    <h3 class="text-3xl font-black text-slate-900">${Math.round(d.stock)}<small class="text-xs ml-1 opacity-50 uppercase">${d.unit}</small></h3>
-                    <p class="text-[9px] mt-4 font-black text-slate-400 uppercase italic">Custo Unit: ${formatBRL(d.pricePerBase)}/${d.unit}</p>
-                </div>
-            `).join('');
+        window.saveConfig = function() {
+            state.fixedCost = parseFloat(document.getElementById('cfg-fixed').value) || 0;
+            state.currentFixedLeft = state.fixedCost; 
+            saveData(); 
+            render(); 
+            syncToCloud(); 
+            showToast("Meta Definida!");
         };
 
-        window.formatBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-        
-        window.switchTab = (t) => {
-            document.getElementById('page-dash').classList.toggle('hidden', t !== 'dash');
-            document.getElementById('page-inv').classList.toggle('hidden', t !== 'inv');
-            document.getElementById('tab-dash').classList.toggle('tab-active', t === 'dash');
-            document.getElementById('tab-inv').classList.toggle('tab-active', t === 'inv');
+        window.closeDay = function() {
+            const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
+            const tProfit = state.dailySales - tCosts;
+            state.currentFixedLeft = Math.max(0, state.currentFixedLeft - tProfit);
+            state.historyLog.unshift({ date: new Date().toLocaleDateString('pt-BR'), sales: state.dailySales, costs: tCosts, profit: tProfit });
+            if (state.historyLog.length > 30) state.historyLog.pop();
+            state.dailySales = 0; state.dailyUsage = [];
+            saveData(); 
+            render(); 
+            syncToCloud();
+            showToast("Dia Encerrado e Salvo na Nuvem!");
+        };
+
+        window.clearHistory = function() {
+            if (confirm("Limpar histórico?")) { 
+                state.historyLog = []; 
+                saveData(); 
+                render(); 
+                syncToCloud(); 
+            }
+        };
+
+        window.sendWhatsAppReport = function() {
+            const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
+            const tProfit = state.dailySales - tCosts;
+            const msg = `*RESUMO DO DIA*%0A💰 Vendas: ${formatBRL(state.dailySales)}%0A📉 Custos: ${formatBRL(tCosts)}%0A✅ Lucro: ${formatBRL(tProfit)}`;
+            window.open(`https://wa.me/?text=${msg}`);
+        };
+
+        window.render = function() {
+            const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
+            const tProfit = state.dailySales - tCosts;
+            document.getElementById('m-sales').innerText = formatBRL(state.dailySales);
+            document.getElementById('m-costs').innerText = formatBRL(tCosts);
+            document.getElementById('m-profit').innerText = formatBRL(tProfit);
+            document.getElementById('m-be').innerText = formatBRL(state.currentFixedLeft);
+            const percFaltante = state.fixedCost > 0 ? (state.currentFixedLeft / state.fixedCost) * 100 : 0;
+            document.getElementById('m-be-percent').innerText = `Faltam ${percFaltante.toFixed(1)}% para a meta`;
+            const prog = state.fixedCost > 0 ? ((state.fixedCost - state.currentFixedLeft) / state.fixedCost) * 100 : 0;
+            document.getElementById('be-progress').style.width = `${Math.min(prog, 100)}%`;
+            const sel = document.getElementById('sel-insumo');
+            sel.innerHTML = '<option value="">Selecionar...</option>';
+            Object.keys(state.inventory).sort().forEach(n => sel.innerHTML += `<option value="${n}">${n}</option>`);
+            document.getElementById('usage-list').innerHTML = state.dailyUsage.map(u => `<tr><td class="px-8 py-4 font-bold text-xs">${u.name}</td><td class="px-8 py-4 text-xs">${u.qty}${u.unit}</td><td class="px-8 py-4 text-right text-red-500 font-black">${formatBRL(u.cost)}</td><td class="px-8 py-4 text-center"><button onclick="deleteUsage(${u.id})" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('inventory-grid').innerHTML = Object.entries(state.inventory).map(([n, d]) => `<div class="glass-card p-6 ${d.stock < 500 ? 'critical-stock' : 'border-t-4 border-blue-500'}"><button onclick="removeInventoryItem('${n}')" class="delete-btn"><i class="fas fa-trash-alt"></i></button><div class="space-y-3"><h4 class="font-black text-[10px] uppercase text-slate-400">${n}</h4><p class="text-2xl font-black">${Math.round(d.stock)}<small class="text-xs ml-1 opacity-50">${d.unit}</small></p><div class="space-y-1"><p class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded inline-block">Valor p/ ${d.originalUnit || 'un'}: ${formatBRL(d.fullUnitPrice || 0)}</p></div></div></div>`).join('');
+            document.getElementById('history-list').innerHTML = state.historyLog.map(h => `<tr><td class="py-4 text-slate-500">${h.date}</td><td class="py-4 text-right">${formatBRL(h.sales)}</td><td class="py-4 text-right text-red-400">${formatBRL(h.costs)}</td><td class="py-4 text-right text-green-600">${formatBRL(h.profit)}</td></tr>`).join('');
+            updateChart();
+        };
+
+        window.deleteUsage = function(id) {
+            const idx = state.dailyUsage.findIndex(x => x.id === id);
+            if (idx > -1) { const u = state.dailyUsage[idx]; if (state.inventory[u.name]) state.inventory[u.name].stock += u.baseQty; state.dailyUsage.splice(idx, 1); saveData(); render(); }
+        };
+
+        window.formatBRL = function(v) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v); };
+        window.showToast = function(m) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('opacity-0'); setTimeout(() => t.classList.add('opacity-0'), 2000); };
+        window.switchTab = function(t) { 
+            document.getElementById('section-dash').classList.toggle('hidden', t !== 'dash'); 
+            document.getElementById('section-inventory').classList.toggle('hidden', t !== 'inventory'); 
+            document.getElementById('tab-dash').classList.toggle('tab-active', t === 'dash'); 
+            document.getElementById('tab-inventory').classList.toggle('tab-active', t === 'inventory'); 
+        };
+        window.handleLogout = function() { localStorage.removeItem(DB_KEY); location.reload(); };
+
+        window.initChart = function() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Lucro (R$)', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+            updateChart();
+        };
+
+        window.updateChart = function() {
+            if (!myChart) return;
+            const lastData = [...state.historyLog].slice(0, 7).reverse();
+            if (lastData.length > 0) {
+                myChart.data.labels = lastData.map(d => d.date.split('/')[0] + '/' + d.date.split('/')[1]);
+                myChart.data.datasets[0].data = lastData.map(d => d.profit);
+            }
+            myChart.update();
         };
     </script>
 </body>
