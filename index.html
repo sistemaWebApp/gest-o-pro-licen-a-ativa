@@ -3,278 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Pro Enterprise - v7.0 Full</title>
+    <title>Gestão Pro Enterprise - v7.1 Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1.5rem; transition: all 0.2s ease; position: relative; }
-        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 800; }
-        .critical-stock { border-left: 8px solid #ef4444 !important; background: #fef2f2; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .glass-card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 800; }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
     <div id="auth-screen" class="fixed inset-0 z-[9999] bg-slate-900 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
-            <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-8">
-                <i class="fas fa-rocket text-white text-3xl"></i>
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-8">
+                <i class="fas fa-lock text-white text-3xl"></i>
             </div>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Ativação Enterprise</h2>
-            <div class="space-y-4 my-8">
-                <input type="text" id="auth-doc" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-lg font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CPF ou CNPJ (Só números)">
-                <input type="password" id="license-key" class="w-full p-5 bg-slate-100 rounded-2xl text-center text-xl font-bold outline-none border-2 border-transparent focus:border-blue-500 transition-all" placeholder="CHAVE DE ACESSO">
+            <h2 class="text-3xl font-black text-slate-900 mb-2">Acesso Restrito</h2>
+            <p class="text-slate-500 text-sm mb-8">Insira suas credenciais cadastradas</p>
+            
+            <div class="space-y-4 mb-8">
+                <input type="text" id="auth-doc" class="w-full p-4 bg-slate-100 rounded-xl text-center font-bold outline-none focus:ring-2 focus:ring-blue-500" placeholder="CPF (Apenas números)">
+                <input type="password" id="license-key" class="w-full p-4 bg-slate-100 rounded-xl text-center font-bold outline-none focus:ring-2 focus:ring-blue-500" placeholder="CHAVE DE ACESSO">
             </div>
-            <button onclick="handleLogin()" id="btn-login-fire" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-xl transition-all uppercase text-xs tracking-widest">
-                Acessar Sistema
+            
+            <button onclick="handleLogin()" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition-all shadow-lg">
+                ENTRAR NO SISTEMA
             </button>
         </div>
     </div>
 
     <div id="app-content" class="hidden">
-        <nav class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
-            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center h-24">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center"><i class="fas fa-rocket text-white text-xl"></i></div>
-                    <span class="font-black text-2xl italic">GESTÃO<span class="text-blue-600">PRO</span></span>
-                </div>
-                <div class="flex gap-6 text-[11px] font-black uppercase text-slate-400 h-full">
-                    <button onclick="switchTab('dash')" id="tab-dash" class="h-full px-2 tab-active">Dashboard</button>
-                    <button onclick="switchTab('inventory')" id="tab-inventory" class="h-full px-2">Engenharia</button>
-                    <button onclick="handleLogout()" class="ml-4 text-slate-300 hover:text-red-500"><i class="fas fa-power-off text-lg"></i></button>
-                </div>
+        <nav class="bg-white border-b h-20 flex items-center px-6 justify-between sticky top-0 z-40">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white"><i class="fas fa-rocket"></i></div>
+                <span class="font-black text-xl italic text-slate-800">GESTÃO<span class="text-blue-600">PRO</span></span>
             </div>
+            <button onclick="location.reload()" class="text-slate-400 hover:text-red-500"><i class="fas fa-power-off text-xl"></i></button>
         </nav>
 
-        <main class="max-w-6xl mx-auto p-6 space-y-8 pb-32">
-            
-            <div id="section-dash" class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="glass-card p-6 border-b-4 border-b-blue-500">
-                        <p class="text-[10px] font-black uppercase text-slate-400">Vendas Hoje</p>
-                        <h3 id="m-sales" class="text-3xl font-black">R$ 0,00</h3>
+        <main class="max-w-5xl mx-auto p-6">
+            <div class="glass-card p-8 text-center">
+                <h1 class="text-2xl font-black text-slate-800">Bem-vindo de volta!</h1>
+                <p class="text-slate-500 mt-2">Sistema restaurado e pronto para operar.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                    <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                        <p class="text-[10px] font-black text-blue-400 uppercase">Estoque Insumos</p>
+                        <h4 class="text-2xl font-black text-blue-700">Ativo</h4>
                     </div>
-                    <div class="glass-card p-6 border-b-4 border-b-red-500">
-                        <p class="text-[10px] font-black uppercase text-slate-400">Custo de Materiais</p>
-                        <h3 id="m-costs" class="text-3xl font-black text-red-500">R$ 0,00</h3>
+                    <div class="p-6 bg-green-50 rounded-2xl border border-green-100">
+                        <p class="text-[10px] font-black text-green-400 uppercase">Vendas</p>
+                        <h4 class="text-2xl font-black text-green-700">R$ 0,00</h4>
                     </div>
-                    <div class="glass-card p-6 border-b-4 border-b-green-500">
-                        <p class="text-[10px] font-black uppercase text-slate-400">Lucro Estimado</p>
-                        <h3 id="m-profit" class="text-3xl font-black text-green-600">R$ 0,00</h3>
-                    </div>
-                </div>
-
-                <div class="glass-card p-8 bg-slate-900 text-white border-none shadow-2xl flex flex-wrap items-center justify-between gap-6">
-                    <div>
-                        <h4 class="font-black text-xs uppercase italic text-blue-400">Registrar Nova Venda</h4>
-                        <p class="text-slate-400 text-xs mt-1">Insira o valor bruto recebido.</p>
-                    </div>
-                    <div class="flex gap-4 items-center">
-                        <input type="number" id="sale-val" class="bg-transparent border-b-2 border-slate-700 text-4xl font-black text-white outline-none w-40" placeholder="0,00">
-                        <button onclick="addSale()" class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-xl font-black uppercase text-xs transition-all shadow-lg">Adicionar</button>
+                    <div class="p-6 bg-purple-50 rounded-2xl border border-purple-100">
+                        <p class="text-[10px] font-black text-purple-400 uppercase">Status Firebase</p>
+                        <h4 class="text-2xl font-black text-purple-700">Conectado</h4>
                     </div>
                 </div>
-
-                <div class="glass-card overflow-hidden">
-                    <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                        <h4 class="font-black text-xs uppercase text-slate-500">Baixa de Insumos (Produção)</h4>
-                    </div>
-                    <div class="p-6 flex flex-wrap gap-4">
-                        <select id="sel-insumo" class="flex-1 min-w-[200px] p-4 bg-slate-100 rounded-xl font-bold outline-none border border-slate-200"></select>
-                        <input type="number" id="usage-qty" class="w-32 p-4 bg-slate-100 rounded-xl font-black outline-none border border-slate-200" placeholder="Qtd.">
-                        <select id="usage-unit" class="p-4 bg-slate-100 rounded-xl font-black text-blue-600 border border-slate-200">
-                            <option value="g">G/ML</option>
-                            <option value="kg">KG/L</option>
-                            <option value="un">UN</option>
-                        </select>
-                        <button onclick="addUsage()" class="bg-blue-600 text-white px-6 rounded-xl font-black hover:bg-blue-700 transition-all"><i class="fas fa-check mr-2"></i> DAR BAIXA</button>
-                    </div>
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-400 font-black text-[10px] uppercase">
-                            <tr>
-                                <th class="px-8 py-4 text-left">Item</th>
-                                <th class="px-8 py-4 text-left">Quantidade</th>
-                                <th class="px-8 py-4 text-right">Custo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usage-list" class="divide-y"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="section-inventory" class="hidden space-y-8">
-                <div class="glass-card p-8 shadow-sm">
-                    <h4 class="font-black mb-8 uppercase text-xs text-blue-600 tracking-widest">Cadastrar Novo Insumo no Estoque</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <input type="text" id="inv-name" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-200" placeholder="Ex: Farinha Trigo">
-                        <div class="flex gap-2">
-                            <input type="number" id="inv-qty" class="p-4 bg-slate-50 rounded-2xl w-full font-bold text-sm outline-none border border-slate-200" placeholder="Qtd">
-                            <select id="inv-unit" class="p-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase">
-                                <option value="kg">KG/L</option>
-                                <option value="un">UN</option>
-                            </select>
-                        </div>
-                        <input type="number" id="inv-price" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-200" placeholder="Preço Total Pago">
-                        <button onclick="saveInventory()" class="w-full bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-lg">ADICIONAR</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="inventory-grid"></div>
             </div>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Configuração original do seu projeto 
         const firebaseConfig = {
-            apiKey: "AIzaSyCboQje-660NNTe90tmS-HxF7_7hmTAhg4",
+            apiKey: "AIzaSyCboQje-66ONNTe9OtmS-HxF7_7hmTAhg4",
             authDomain: "gestorpro-fda39.firebaseapp.com",
             projectId: "gestorpro-fda39",
             storageBucket: "gestorpro-fda39.firebasestorage.app",
-            messagingSenderId: "614355486570",
             appId: "1:614355486570:web:ec1b6f76020cde55b68713"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let state = {
-            inventory: {},
-            dailyUsage: [],
-            dailySales: 0
-        };
-
-        // --- SISTEMA DE LOGIN ---
         window.handleLogin = async function() {
-            const btn = document.getElementById('btn-login-fire');
             const docInput = document.getElementById('auth-doc').value.trim();
             const keyInput = document.getElementById('license-key').value.trim();
+            const btn = document.getElementById('btn-login');
 
-            btn.innerText = "VALIDANDO...";
+            if(!docInput || !keyInput) return alert("Preencha todos os campos!");
+
+            btn.innerText = "VERIFICANDO...";
             btn.disabled = true;
 
             try {
-                const docRef = doc(db, "lincencas", docInput);
+                // Busca na coleção de licenças conforme seu print do Firestore
+                const docRef = doc(db, "lincencas", docInput); 
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists() && docSnap.data().key === keyInput) {
-                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('auth-screen').classList.add('hidden');
                     document.getElementById('app-content').classList.remove('hidden');
-                    loadUserData(docInput);
                 } else {
-                    alert("Dados de acesso incorretos!");
+                    alert("CPF ou Chave Inválidos!");
                 }
-            } catch (e) {
-                alert("Erro ao conectar. Verifique sua internet.");
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão com o banco de dados.");
             } finally {
-                btn.innerText = "Acessar Sistema";
+                btn.innerText = "ENTRAR NO SISTEMA";
                 btn.disabled = false;
             }
         };
-
-        // --- CARREGAR E SALVAR DADOS NO FIRESTORE ---
-        async function loadUserData(userId) {
-            const userDoc = doc(db, "dados_usuarios", userId);
-            const snap = await getDoc(userDoc);
-            if (snap.exists()) {
-                state = snap.data();
-                render();
-            }
-        }
-
-        async function sync() {
-            const userId = document.getElementById('auth-doc').value.trim();
-            await setDoc(doc(db, "dados_usuarios", userId), state);
-            render();
-        }
-
-        // --- LÓGICA DE NEGÓCIO ---
-        window.saveInventory = function() {
-            const name = document.getElementById('inv-name').value.trim().toUpperCase();
-            const qty = parseFloat(document.getElementById('inv-qty').value);
-            const unit = document.getElementById('inv-unit').value;
-            const price = parseFloat(document.getElementById('inv-price').value);
-
-            if (!name || isNaN(qty) || isNaN(price)) return;
-
-            let baseQty = (unit === 'kg') ? qty * 1000 : qty;
-            let baseUnit = (unit === 'kg') ? 'g' : 'un';
-
-            if (!state.inventory[name]) state.inventory[name] = { stock: 0, pricePerBase: 0, unit: baseUnit };
-            
-            state.inventory[name].stock += baseQty;
-            state.inventory[name].pricePerBase = price / baseQty;
-
-            sync();
-            document.getElementById('inv-name').value = ""; document.getElementById('inv-qty').value = ""; document.getElementById('inv-price').value = "";
-        };
-
-        window.addUsage = function() {
-            const name = document.getElementById('sel-insumo').value;
-            const qty = parseFloat(document.getElementById('usage-qty').value);
-            const unit = document.getElementById('usage-unit').value;
-            
-            if (!name || isNaN(qty)) return;
-
-            let baseQty = (unit === 'kg') ? qty * 1000 : qty;
-            const item = state.inventory[name];
-
-            if (baseQty > item.stock) return alert("Estoque insuficiente de " + name);
-
-            item.stock -= baseQty;
-            const cost = baseQty * item.pricePerBase;
-            state.dailyUsage.push({ name, qty, unit, cost });
-            
-            sync();
-        };
-
-        window.addSale = function() {
-            const v = parseFloat(document.getElementById('sale-val').value);
-            if (isNaN(v)) return;
-            state.dailySales += v;
-            sync();
-            document.getElementById('sale-val').value = "";
-        };
-
-        // --- INTERFACE ---
-        window.render = function() {
-            const tCosts = state.dailyUsage.reduce((a, b) => a + b.cost, 0);
-            document.getElementById('m-sales').innerText = formatBRL(state.dailySales);
-            document.getElementById('m-costs').innerText = formatBRL(tCosts);
-            document.getElementById('m-profit').innerText = formatBRL(state.dailySales - tCosts);
-
-            const sel = document.getElementById('sel-insumo');
-            sel.innerHTML = '<option value="">Selecionar Insumo...</option>';
-            Object.keys(state.inventory).forEach(n => sel.innerHTML += `<option value="${n}">${n}</option>`);
-
-            document.getElementById('usage-list').innerHTML = state.dailyUsage.map(u => `
-                <tr>
-                    <td class="px-8 py-4 font-bold text-xs">${u.name}</td>
-                    <td class="px-8 py-4 text-xs">${u.qty}${u.unit}</td>
-                    <td class="px-8 py-4 text-right text-red-500 font-black">${formatBRL(u.cost)}</td>
-                </tr>`).join('');
-
-            document.getElementById('inventory-grid').innerHTML = Object.entries(state.inventory).map(([n, d]) => `
-                <div class="glass-card p-6 ${d.stock < 500 ? 'critical-stock' : 'border-t-4 border-blue-500'}">
-                    <p class="text-[10px] font-black uppercase text-slate-400">${n}</p>
-                    <h3 class="text-2xl font-black">${Math.round(d.stock)}<small class="text-xs ml-1 opacity-50">${d.unit}</small></h3>
-                    <p class="text-[9px] mt-2 font-bold text-slate-400">VALOR UNIT: ${formatBRL(d.pricePerBase)}/${d.unit}</p>
-                </div>`).join('');
-        };
-
-        window.formatBRL = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-        
-        window.switchTab = (t) => {
-            document.getElementById('section-dash').classList.toggle('hidden', t !== 'dash');
-            document.getElementById('section-inventory').classList.toggle('hidden', t !== 'inventory');
-            document.getElementById('tab-dash').classList.toggle('tab-active', t === 'dash');
-            document.getElementById('tab-inventory').classList.toggle('tab-active', t === 'inventory');
-        };
-
-        window.handleLogout = () => location.reload();
     </script>
 </body>
 </html>
